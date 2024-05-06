@@ -47,10 +47,14 @@ export default class MapEditor {
 
   /** 初始化 */
   async init() {
+    /** 初始化画笔 */
     this.initPainter();
+    /** 绘制地图 */
     await this.initMap();
+    /** 绘制点位信息 */
+    this.render();
+    /** 监听鼠标点击事件 */
     this.addMouseDownListener();
-    this.renderMarker();
   }
 
   /** 初始化画笔 */
@@ -59,7 +63,6 @@ export default class MapEditor {
     const canvas: HTMLCanvasElement = document.getElementById(this.canvasId);
     const { width, height, left, top } = canvas.getBoundingClientRect();
     this._canvas = canvas;
-
     this.canvasLeft = left;
     this.canvasTop = top;
     canvas.width = this.width || width;
@@ -70,7 +73,7 @@ export default class MapEditor {
 
   /** 监听鼠标点击事件 */
   addMouseDownListener() {
-    this._canvas.addEventListener('mousedown', this.addMarker);
+    this._canvas.addEventListener('mousedown', this.add);
   }
 
   /** 对齐坐标 */
@@ -90,13 +93,14 @@ export default class MapEditor {
   }
 
   /** 添加点位信息 */
-  addMarker = (event) => {
+  add = (event) => {
     this.points.push(this.getMousePosition(event));
-    this.renderMarker();
+    this.render();
   };
 
   /** 渲染点位 */
-  renderMarker() {
+  render() {
+    if (!this.points.length) return;
     this.points.forEach((point, index) => {
       const marker = new Marker({ ...point, index });
       marker.init(this._painter);
@@ -104,5 +108,5 @@ export default class MapEditor {
   }
 
   /** 删除点位信息 */
-  deleteMarker() {}
+  delete() {}
 }
