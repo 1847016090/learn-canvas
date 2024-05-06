@@ -32,9 +32,9 @@ export default class MapEditor {
     /** 背景地图链接 */
     map: string;
     /** 地图宽 */
-    width: number;
+    width?: number;
     /** 地图高 */
-    height: number;
+    height?: number;
     /** 已有点位信息 */
     points?: Point[];
   }) {
@@ -60,7 +60,9 @@ export default class MapEditor {
   /** 初始化画笔 */
   initPainter() {
     // 得到画布
-    const canvas: HTMLCanvasElement = document.getElementById(this.canvasId);
+    const canvas: HTMLCanvasElement = document.querySelector(
+      `#${this.canvasId}`,
+    );
     const { width, height, left, top } = canvas.getBoundingClientRect();
     this._canvas = canvas;
     this.canvasLeft = left;
@@ -102,7 +104,7 @@ export default class MapEditor {
   render() {
     if (!this.points.length) return;
     this.points.forEach((point, index) => {
-      const marker = new Marker({ ...point, index });
+      const marker = new Marker({ ...point, index: index + 1 });
       marker.init(this._painter);
     });
   }

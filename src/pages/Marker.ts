@@ -34,7 +34,7 @@ export default class Marker {
     painter.textAlign = 'center';
     painter.textBaseline = 'middle';
     painter.fillStyle = '#fff';
-    painter.fillText(String(this.index), this.x, this.y, 400);
+    painter.fillText(String(this.index), this.x, this.y, CIRCLE_RADIUS * 2 - 4);
     painter.closePath();
   }
 }
