@@ -1,7 +1,7 @@
 import Marker from './Marker';
 import { CIRCLE_RADIUS } from './Marker';
 
-const loadImage = (url) =>
+const loadImage = (url): Promise<HTMLImageElement> =>
   new Promise((resolve) => {
     const img = new Image();
     img.src = url;
@@ -12,12 +12,22 @@ const loadImage = (url) =>
 
 type Point = { x: number; y: number };
 
-export default class MapEditor {
-  canvasId: string;
-  map: string;
-  width: number;
-  height: number;
+export enum EditorStatusEnum {
+  /** 普通模式：可拖拽 */
+  Normal = 'normal',
+  /** 新增模式：可新增点位 */
+  New = 'new',
+}
 
+export default class MapEditor {
+  /** 编辑器状态 */
+  status: EditorStatusEnum.Normal;
+  canvasId: string;
+  /** 地图链接 */
+  map: string;
+  /** 比列 */
+  ratio: number;
+  /** 点位信息 */
   points: Point[] = [];
 
   canvasLeft: number = 0;
@@ -31,17 +41,11 @@ export default class MapEditor {
     canvasId: string;
     /** 背景地图链接 */
     map: string;
-    /** 地图宽 */
-    width?: number;
-    /** 地图高 */
-    height?: number;
     /** 已有点位信息 */
     points?: Point[];
   }) {
     this.canvasId = options.canvasId;
     this.map = options.map;
-    this.width = options.width;
-    this.height = options.height;
     this.points = options.points || [];
   }
 
@@ -58,24 +62,39 @@ export default class MapEditor {
   }
 
   /** 初始化画笔 */
-  initPainter() {
+  async initPainter() {
     // 得到画布
     const canvas: HTMLCanvasElement = document.querySelector(
       `#${this.canvasId}`,
     );
-    const { width, height, left, top } = canvas.getBoundingClientRect();
+    // const { width, height, left, top } = canvas.getBoundingClientRect();
+    const map: HTMLImageElement = await loadImage(this.map);
+
+    /** 获取canvas已经图片款高 */
+    const canvasHeight = window.innerHeight;
+    const ratio = window.innerHeight / map.height;
+    this.ratio = ratio;
+    const mapWidth = ratio * map.width;
+    const mapHeight = map.height;
+    const canvasWidth =
+      mapWidth > window.innerWidth ? window.innerWidth : mapWidth;
     this._canvas = canvas;
-    this.canvasLeft = left;
-    this.canvasTop = top;
-    canvas.width = this.width || width;
-    canvas.height = this.height || height;
-    // 创建画笔
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    /** 创建画笔 */
     this._painter = canvas.getContext('2d');
+    this._painter.drawImage(map, 0, 0, mapWidth, mapHeight);
   }
 
   /** 监听鼠标点击事件 */
   addMouseDownListener() {
     this._canvas.addEventListener('mousedown', this.add);
+    this._canvas.addEventListener('mouseup', () => {
+      console.log('鼠标浮起');
+    });
+    this._canvas.addEventListener('mousemove', ({ clientX, clientY }) => {
+      console.log('clientX,clientY', clientX, clientY);
+    });
   }
 
   /** 对齐坐标 */
@@ -91,11 +110,16 @@ export default class MapEditor {
   /** 贴上背景图 */
   async initMap() {
     const map: any = await loadImage(this.map);
+    console.log('window.width', window.innerWidth);
+    console.log('window.innerHeight', window.innerHeight);
+    console.log('map.width', map.width);
+    console.log('map.height', map.height);
     this._painter.drawImage(map, 0, 0, this.width, this.height);
   }
 
   /** 添加点位信息 */
   add = (event) => {
+    console.log('鼠标按下');
     this.points.push(this.getMousePosition(event));
     this.render();
   };

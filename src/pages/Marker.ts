@@ -1,4 +1,4 @@
-export const CIRCLE_RADIUS = 14;
+export const CIRCLE_RADIUS = 8;
 
 export default class Marker {
   /** 点位x轴位置 */
@@ -29,12 +29,14 @@ export default class Marker {
     painter.closePath();
 
     /** 画字 */
-    painter.beginPath();
-    painter.font = '14px Verdana';
-    painter.textAlign = 'center';
-    painter.textBaseline = 'middle';
-    painter.fillStyle = '#fff';
-    painter.fillText(String(this.index), this.x, this.y, CIRCLE_RADIUS * 2 - 4);
-    painter.closePath();
+    // painter.beginPath();
+    // painter.font = '14px Verdana';
+    // painter.textAlign = 'center';
+    // painter.textBaseline = 'middle';
+    // painter.fillStyle = '#fff';
+    // painter.fillText(String(this.index), this.x, this.y, CIRCLE_RADIUS * 2 - 4);
+    // painter.closePath();
   }
+
+  /** 选中拖拽 */
 }

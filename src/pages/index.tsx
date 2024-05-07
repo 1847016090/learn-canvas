@@ -11,8 +11,8 @@ const Main = () => {
     let editor = new MapEditor({
       canvasId,
       map,
-      width: 1000,
-      height: 1000,
+      // width: 1000,
+      // height: 1000,
       points: [
         { x: 20, y: 20 },
         { x: 200, y: 200 },
@@ -20,7 +20,16 @@ const Main = () => {
     });
     editor.init();
   }, []);
-  return <canvas id={canvasId} />;
+
+  const onAdd = () => {
+    console.log('11111', 11111);
+  };
+
+  return (
+    <div>
+      <canvas id={canvasId} />
+    </div>
+  );
 };
 
 export default Main;
