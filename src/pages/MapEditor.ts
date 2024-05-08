@@ -245,12 +245,13 @@ export default class MapEditor implements BasicMapEditor {
     this._drawPoints();
   }
 
-  /** 监听鼠标点击事件 */
-  private _addMouseListener() {
-    this._canvas.addEventListener('click', this._onMouseClick);
-    this._canvas.addEventListener('mousedown', this._onMouseDown);
-    this._canvas.addEventListener('mouseup', this._onMouseUp);
-    this._canvas.addEventListener('mousemove', this._onMouseMove);
+  /** 鼠标右键 */
+  private _onContextMenu(event: MouseEvent) {
+    /** 阻止默认的右键事件 */
+    event.preventDefault();
+    console.log('鼠标右键');
+    this._mode = EditorModeEnum.DragMap;
+    console.log('this._mode ', this._mode);
   }
 
   /** 鼠标点击 */
@@ -329,6 +330,7 @@ export default class MapEditor implements BasicMapEditor {
 
   /**鼠标移动 */
   private _onMouseMove = (event) => {
+    console.log('this._mode', this._mode);
     const { x, y } = event;
     switch (this._mode) {
       case EditorModeEnum.DragPoint:
@@ -357,6 +359,17 @@ export default class MapEditor implements BasicMapEditor {
         /** 3. 重新绘制 */
         this._rerender();
         break;
+      case EditorModeEnum.DragMap:
+        console.log('x, y', x, y);
+        /** 1. 移除新增的点 */
+        // this.points = this.points.filter((p) => p.contentListPoiId);
+        // /** 2. 重新生成一个新点 */
+        // this.points.push({
+        //   position: { x, y },
+        // });
+        // /** 3. 重新绘制 */
+        // this._rerender();
+        break;
     }
   };
 
@@ -364,13 +377,21 @@ export default class MapEditor implements BasicMapEditor {
     this._removeMouseListener();
     this._clear();
   }
-
+  /** 监听鼠标点击事件 */
+  private _addMouseListener() {
+    this._canvas.addEventListener('click', this._onMouseClick);
+    this._canvas.addEventListener('mousedown', this._onMouseDown);
+    this._canvas.addEventListener('mouseup', this._onMouseUp);
+    this._canvas.addEventListener('mousemove', this._onMouseMove);
+    this._canvas.addEventListener('contextmenu', this._onContextMenu);
+  }
   /** 移出事件监听 */
   private _removeMouseListener() {
     this._canvas.removeEventListener('mousedown', this._onMouseDown);
     this._canvas.removeEventListener('mouseup', this._onMouseUp);
     this._canvas.removeEventListener('mousemove', this._onMouseMove);
     this._canvas.removeEventListener('click', this._onMouseClick);
+    this._canvas.removeEventListener('contextmenu', this._onContextMenu);
   }
 
   /** 对齐坐标 */
