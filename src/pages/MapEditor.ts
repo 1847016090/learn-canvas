@@ -186,6 +186,7 @@ export default class MapEditor implements BasicMapEditor {
     return this.points.map((p) => {
       const {
         position: { x, y },
+        marker,
         ...rest
       } = p;
       return {
