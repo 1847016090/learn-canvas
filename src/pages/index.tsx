@@ -11,11 +11,22 @@ const Main = () => {
     let editor = new MapEditor({
       canvasId,
       map,
-      // width: 1000,
-      // height: 1000,
       points: [
-        { x: 20, y: 20 },
-        { x: 200, y: 200 },
+        {
+          contentListPoiId: '1',
+          contentListPoiName: '哈哈哈哈',
+          usingGuideBookIdx: 0,
+          position: {
+            x: 20,
+            y: 20,
+          },
+        },
+        {
+          contentListPoiId: '2',
+          contentListPoiName: '嘻嘻嘻嘻',
+          usingGuideBookIdx: 0,
+          position: { x: 200, y: 200 },
+        },
       ],
     });
     editor.init();

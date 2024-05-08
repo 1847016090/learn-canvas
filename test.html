@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Dot Dragging with Box</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="myCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 示例函数，用于绘制一些内容
+    function drawContent() {
+      // 清除整个画布
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 绘制背景等不经常改变的内容
+      ctx.fillStyle = '#ffffff'; // 白色背景
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 绘制变化的内容
+      ctx.fillStyle = '#ff0000'; // 红色矩形
+      ctx.fillRect(50, 50, 100, 100);
+    }
+
+    // 使用requestAnimationFrame来优化绘制
+    function animate() {
+      requestAnimationFrame(animate);
+      drawContent();
+    }
+
+    // 初始化动画
+    animate();
+  </script>
+
+</body>
+
+</html>
