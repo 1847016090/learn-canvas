@@ -5,11 +5,11 @@ const map =
   'https://static.rokidcdn.com/test/rokid-dcg-manage/1.0.0/assets/login-bg-48e90a23.png';
 
 import MapEditor, {
-  BasicMapEditor,
   EditorStatusEnum,
   FnCacheStatusEnum,
   Point,
 } from './MapEditor';
+import BasicMapEditor from './BasicMapEditor';
 
 // [
 // {
