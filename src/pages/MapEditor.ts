@@ -275,10 +275,9 @@ export default class MapEditor implements BasicMapEditor {
   private _onMouseClick = (event) => {
     console.log('====鼠标点击====');
     const { clientX, clientY } = event;
+
     switch (this.status) {
       case EditorStatusEnum.New:
-        // this.points.push(this.getMousePosition(event));
-        // this._drawPoints();
         break;
       case EditorStatusEnum.Normal:
         console.log('===普通模式===', clientX, clientY);
@@ -295,28 +294,24 @@ export default class MapEditor implements BasicMapEditor {
           this._selectedPoint = point;
           const { marker, ...p } = this._selectedPoint;
           selectFn?.(p);
-          return;
-        }
-        /** 点击不同点清除画布重新绘制 */
-        if (
+        } else if (
           point &&
           point.contentListPoiId !== this._selectedPoint?.contentListPoiId
         ) {
+          /** 点击不同点清除画布重新绘制 */
           this._selectedPoint = point;
           const { marker, ...p } = this._selectedPoint;
           selectFn?.(p);
           this._clear();
           this._rerender();
-
-          return;
+        } else {
+          /** 重置 */
+          console.log('重置');
+          this._selectedPoint = undefined;
+          selectFn(undefined);
+          this._clear();
+          this._rerender();
         }
-
-        /** 重置 */
-        console.log('重置');
-        this._selectedPoint = undefined;
-        selectFn(undefined);
-        this._clear();
-        this._rerender();
         break;
       default:
     }
@@ -342,6 +337,8 @@ export default class MapEditor implements BasicMapEditor {
         x: p.position.x - this._moveX,
       },
     }));
+
+    this._onMouseClick(event);
     if (this._selectedPoint) {
       this._mode = EditorModeEnum.DragPoint;
     }
@@ -481,6 +478,18 @@ export default class MapEditor implements BasicMapEditor {
     this._canvas.addEventListener('mouseup', this._onMouseUp);
     this._canvas.addEventListener('contextmenu', this._onContextMenu);
     this._canvas.addEventListener('mousemove', this._onMouseMove);
+    // this._canvas.addEventListener('mouseover', (event) => {
+    //   console.log('浮动啦 mouseover');
+    // });
+    // this._canvas.addEventListener('mouseenter', (event) => {
+    //   console.log('浮动啦 mouseenter');
+    // });
+    // this._canvas.addEventListener('mouseout', (event) => {
+    //   console.log('浮动啦 mouseout');
+    // });
+    // this._canvas.addEventListener('mouseleave', (event) => {
+    //   console.log('浮动啦 mouseleave');
+    // });
     window.addEventListener('resize', this._onWindowResize);
   }
   /** 移出事件监听 */
