@@ -45,6 +45,8 @@ export enum FnCacheStatusEnum {
   Add = 'add',
   /** 信息更新 */
   Update = 'update',
+  /** 选中点位 */
+  Select = 'select',
 }
 
 let _clickRight = false;
@@ -263,6 +265,8 @@ export default class MapEditor implements BasicMapEditor {
         const point = this.points.find((p) =>
           p.marker.checkSelected(clientX, clientY),
         );
+        const selectFn = this._listenFnCache.get(FnCacheStatusEnum.Select);
+        selectFn?.(point);
         /** 点击同一个点不绘制 */
         if (
           point &&
@@ -313,10 +317,12 @@ export default class MapEditor implements BasicMapEditor {
   };
 
   private _getFilterPoints = () => {
-    return this.points.map((p) => {
-      const { marker, ...rest } = p;
-      return rest;
-    });
+    return this.points
+      .map((p) => {
+        const { marker, ...rest } = p;
+        return rest;
+      })
+      .filter((p) => p.contentListPoiId);
   };
 
   /** 鼠标抬起 */
@@ -327,13 +333,13 @@ export default class MapEditor implements BasicMapEditor {
       case EditorStatusEnum.New:
         const { clientX, clientY } = event;
         const addFn = this._listenFnCache.get(FnCacheStatusEnum.Add);
-        addFn({ x: clientX, y: clientY }, this._getFilterPoints());
+        addFn?.({ x: clientX, y: clientY }, this._getFilterPoints());
         break;
       case EditorStatusEnum.Normal:
         this._mode = EditorModeEnum.None;
         this._rerender();
         const updateFn = this._listenFnCache.get(FnCacheStatusEnum.Update);
-        updateFn(
+        updateFn?.(
           this.points.map((p) => {
             const { marker, ...rest } = p;
             return rest;

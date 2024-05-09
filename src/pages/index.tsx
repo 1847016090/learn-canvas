@@ -70,11 +70,9 @@ const Main = () => {
   console.log('===points====', state.points);
 
   const onAddPoint = ({ x, y }, points) => {
-    console.log('points', points);
+    console.log('收到回调===points===', points);
     console.log('收到回调===x,y', x, y);
     console.log('points', state.points);
-    const p = _.cloneDeep(state.points);
-    console.log('p', p);
     pointsRef.value = [
       {
         contentListPoiId: `${new Date().valueOf()}`,
