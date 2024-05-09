@@ -94,7 +94,9 @@ const Main = () => {
     pointsRef.value = points;
     setState({ points });
   };
-
+  const onSelectPoint = (point) => {
+    console.log('onSelectPoint point', point);
+  };
   useEffect(() => {
     let editor = new MapEditor({
       canvasId,
@@ -104,6 +106,7 @@ const Main = () => {
     editor.init();
     editor.addListener(FnCacheStatusEnum.Add, onAddPoint);
     editor.addListener(FnCacheStatusEnum.Update, onUpdatePoint);
+    editor.addListener(FnCacheStatusEnum.Select, onSelectPoint);
     editorRef.value = editor;
     // setInterval(() => setA(new Date().valueOf()), 1000);
   }, []);

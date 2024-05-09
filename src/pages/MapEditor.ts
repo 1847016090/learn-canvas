@@ -264,7 +264,8 @@ export default class MapEditor implements BasicMapEditor {
           p.marker.checkSelected(clientX, clientY),
         );
         const selectFn = this._listenFnCache.get(FnCacheStatusEnum.Select);
-        selectFn?.(point);
+        const { marker, ...p } = point;
+        selectFn?.(p);
         /** 点击同一个点不绘制 */
         if (
           point &&
