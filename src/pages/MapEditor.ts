@@ -4,6 +4,7 @@ import Marker from './Marker';
 const loadImage = (url): Promise<HTMLImageElement> =>
   new Promise((resolve) => {
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.src = url;
     img.onload = () => {
       resolve(img);
