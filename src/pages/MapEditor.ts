@@ -179,7 +179,7 @@ export default class MapEditor implements BasicMapEditor {
       return {
         ...rest,
         position: {
-          x: x * ratio,
+          x: x * ratio + this._moveX,
           y: y * ratio,
         },
       };
@@ -291,6 +291,7 @@ export default class MapEditor implements BasicMapEditor {
         this._clear();
         this._rerender();
         break;
+      default:
     }
   };
 
@@ -350,6 +351,7 @@ export default class MapEditor implements BasicMapEditor {
           }),
         );
         break;
+      default:
     }
   };
   /**
@@ -433,6 +435,7 @@ export default class MapEditor implements BasicMapEditor {
         /** 3. 重新绘制 */
         this._rerender();
         break;
+      default:
     }
   };
 
