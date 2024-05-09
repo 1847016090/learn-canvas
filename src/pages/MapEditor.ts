@@ -157,10 +157,17 @@ export default class MapEditor implements BasicMapEditor {
     this._rerender();
   }
 
+  private _getRatio() {
+    const ratio = window.innerHeight / this._mapInfo.height;
+    this.ratio = ratio;
+  }
+
   /** 初始化 */
   async init() {
     /** 请求地图 */
     await this._initMap();
+    /** 获取比例 */
+    this._getRatio();
     /** 根据比列更细点位 */
     this._updatePointsByRatio();
     /** 初始化画笔 */
@@ -169,8 +176,25 @@ export default class MapEditor implements BasicMapEditor {
     this._drawMap();
     /** 绘制点位信息 */
     this._drawPoints();
+    /** 先移除监听 */
+    this._removeMouseListener();
     /** 监听鼠标点击事件 */
     this._addMouseListener();
+  }
+
+  _repaintByWindow() {
+    /** 还原点位数据 */
+    this.points = this.getOriginPoints();
+    /** 获取比例 */
+    this._getRatio();
+    /** 根据比列更细点位 */
+    this._updatePointsByRatio();
+    /** 初始化画笔 */
+    this._initPainter();
+    /** 绘制背景地图 */
+    this._drawMap();
+    /** 绘制点位信息 */
+    this._drawPoints();
   }
 
   /** 更新为窗口高度的信息 */
@@ -213,8 +237,6 @@ export default class MapEditor implements BasicMapEditor {
   private async _initMap() {
     const map: HTMLImageElement = await loadImage(this.map);
     this._mapInfo = map;
-    const ratio = window.innerHeight / this._mapInfo.height;
-    this.ratio = ratio;
   }
 
   /** 初始化画笔 */
@@ -443,6 +465,10 @@ export default class MapEditor implements BasicMapEditor {
     }
   };
 
+  _onWindowResize = () => {
+    this._repaintByWindow();
+  };
+
   destroy() {
     this._removeMouseListener();
     this._clear();
@@ -454,6 +480,7 @@ export default class MapEditor implements BasicMapEditor {
     this._canvas.addEventListener('mouseup', this._onMouseUp);
     this._canvas.addEventListener('contextmenu', this._onContextMenu);
     this._canvas.addEventListener('mousemove', this._onMouseMove);
+    window.addEventListener('resize', this._onWindowResize);
   }
   /** 移出事件监听 */
   private _removeMouseListener() {
@@ -462,6 +489,7 @@ export default class MapEditor implements BasicMapEditor {
     this._canvas.removeEventListener('mousemove', this._onMouseMove);
     this._canvas.removeEventListener('click', this._onMouseClick);
     this._canvas.removeEventListener('contextmenu', this._onContextMenu);
+    window.removeEventListener('resize', this._onWindowResize);
   }
 
   /** 对齐坐标 */
