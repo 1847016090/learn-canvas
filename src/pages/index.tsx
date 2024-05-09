@@ -11,6 +11,9 @@ import MapEditor, {
 } from './MapEditor';
 import BasicMapEditor from './BasicMapEditor';
 
+import unselectP from './unselect-point.png';
+import selectP from './selected-point.png';
+
 // [
 // {
 //   contentListPoiId: '1',
@@ -102,6 +105,10 @@ const Main = () => {
       canvasId,
       map,
       points: state.points,
+      pointOptions: {
+        unselectUrl: unselectP,
+        selectedUrl: selectP,
+      },
     });
     editor.init();
     editor.addListener(FnCacheStatusEnum.Add, onAddPoint);

@@ -1,7 +1,7 @@
 import BasicMapEditor from './BasicMapEditor';
 import Marker from './Marker';
 
-const loadImage = (url): Promise<HTMLImageElement> =>
+export const loadImage = (url): Promise<HTMLImageElement> =>
   new Promise((resolve) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -59,13 +59,14 @@ export default class MapEditor implements BasicMapEditor {
   canvasId: string;
   /** 地图链接 */
   map: string;
-
+  otherImages: string[];
   /** 比列 */
   ratio: number;
   /** 点位信息 */
   points: Point[] = [];
   private _defaultPoint: Point[] = [];
-
+  private _unselectPointImage: HTMLImageElement;
+  private _selectedPointImage: HTMLImageElement;
   /**
    * 暂时不用
    */
@@ -94,10 +95,21 @@ export default class MapEditor implements BasicMapEditor {
     map: string;
     /** 已有点位信息 */
     points?: Point[];
+    /** 点信息配置 */
+    pointOptions: {
+      /** 为选中点图片 */
+      unselectUrl: string;
+      /** 已选中点图片 */
+      selectedUrl: string;
+    };
   }) {
     this.canvasId = options.canvasId;
     this.map = options.map;
     this.points = options.points || [];
+    this.otherImages = [
+      options.pointOptions.unselectUrl,
+      options.pointOptions.selectedUrl,
+    ];
   }
 
   switchTo(status: EditorStatusEnum) {
@@ -206,8 +218,18 @@ export default class MapEditor implements BasicMapEditor {
   }
 
   private async _initMap() {
-    const map: HTMLImageElement = await loadImage(this.map);
+    const promiseArr = [
+      loadImage(this.map),
+      ...this.otherImages.map((url) => loadImage(url)),
+    ];
+    const [map, unselectPoint, selectedPoint]: HTMLImageElement[] =
+      await Promise.all(promiseArr);
+    console.log('unselectPoint', unselectPoint);
+    console.log('selectedPoint', selectedPoint);
+    // const map: HTMLImageElement = await loadImage(this.map);
     this._mapInfo = map;
+    this._unselectPointImage = unselectPoint;
+    this._selectedPointImage = selectedPoint;
   }
 
   /** 初始化画笔 */
@@ -426,7 +448,6 @@ export default class MapEditor implements BasicMapEditor {
 
         break;
       case EditorModeEnum.CursorPoint:
-        // console.log('x, y', x, y);
         /** 1. 移除新增的点 */
         this.points = this.points.filter((p) => p.contentListPoiId);
         /** 2. 重新生成一个新点 */
@@ -488,13 +509,24 @@ export default class MapEditor implements BasicMapEditor {
         ...point.position,
         name: point.contentListPoiName,
         id: point.contentListPoiId,
+        options: {
+          unselectImage: this._unselectPointImage,
+          selectedImage: this._selectedPointImage,
+        },
       });
-      marker.init(this._painter);
-      if (
+
+      /** 是否选中 */
+      const shouldSelect =
         this._selectedPoint?.contentListPoiId === point.contentListPoiId &&
         this._mode !== EditorModeEnum.DragPoint &&
-        this._mode !== EditorModeEnum.CursorPoint
-      ) {
+        this._mode !== EditorModeEnum.CursorPoint;
+
+      const isExistedPoint = !!point.contentListPoiId;
+
+      marker.init(this._painter, {
+        existed: isExistedPoint,
+      });
+      if (shouldSelect) {
         marker.select();
       }
       return {

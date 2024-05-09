@@ -1,5 +1,6 @@
 export const CIRCLE_RADIUS = 8;
-
+import { loadImage } from './MapEditor';
+import unselectPoint from './unselect-point.png';
 export default class Marker {
   /** 点位x轴位置 */
   x: number = 0;
@@ -13,52 +14,55 @@ export default class Marker {
   /** 画笔 */
   _painter: CanvasRenderingContext2D;
 
-  constructor(options: { x: number; y: number; name: string; id: string }) {
-    this.x = options.x;
-    this.y = options.y;
-    this.name = options.name;
-    this.id = options.id;
+  private _unselectImage: HTMLImageElement;
+  private _selectedImage: HTMLImageElement;
+
+  constructor(data: {
+    x: number;
+    y: number;
+    name: string;
+    id: string;
+    options: {
+      unselectImage;
+      selectedImage;
+    };
+  }) {
+    this.x = data.x;
+    this.y = data.y;
+    this.name = data.name;
+    this.id = data.id;
+    this._unselectImage = data.options.unselectImage;
+    this._selectedImage = data.options.selectedImage;
   }
 
   /** 初始化点位 */
-  init(painter: CanvasRenderingContext2D) {
+  async init(
+    painter: CanvasRenderingContext2D,
+    {
+      existed,
+    }: {
+      /** 是否是已经存在的点 */
+      existed: boolean;
+    },
+  ) {
     this._painter = painter;
     /** 画圈 */
     painter.beginPath();
-    painter.arc(
-      this.x,
-      this.y,
-      CIRCLE_RADIUS,
-      0,
-      ([Math.PI / 180] as any) * 360,
+    // painter.arc(
+    //   this.x,
+    //   this.y,
+    //   CIRCLE_RADIUS,
+    //   0,
+    //   ([Math.PI / 180] as any) * 360,
+    // );
+
+    this._painter.drawImage(
+      existed ? this._selectedImage : this._unselectImage,
+      this.x - CIRCLE_RADIUS,
+      this.y - CIRCLE_RADIUS,
+      CIRCLE_RADIUS * 2,
+      CIRCLE_RADIUS * 2,
     );
-
-    // conic-gradient(from 180deg at 50% 50%,
-    //   rgba(255, 0, 98, 0.31) -49deg,
-    //   rgba(255, 72, 0, 0.76) 22deg,
-    //   rgba(255, 229, 0, 0.81) 136deg,
-    //   #FF8200 225deg,
-    //    rgba(255, 0, 98, 0.31) 311deg,
-    //    rgba(255, 72, 0, 0.76) 382deg);
-
-    const gradient = this._painter.createConicGradient(
-      180,
-      this.x + CIRCLE_RADIUS,
-      this.y + CIRCLE_RADIUS,
-    );
-    gradient.addColorStop(0, 'rgba(255, 0, 98, 0.31)');
-    gradient.addColorStop(22 / 360, 'rgba(255, 72, 0, 0.76)');
-    gradient.addColorStop(136 / 360, 'rgba(255, 229, 0, 0.81)');
-    gradient.addColorStop(225 / 360, '#FF8200');
-    gradient.addColorStop(311 / 360, 'rgba(255, 0, 98, 0.31)');
-    gradient.addColorStop(360 / 360, 'rgba(255, 72, 0, 0.76)');
-
-    // Set the fill style and draw a rectangle
-    // ctx.fillStyle = gradient;
-    // ctx.fillRect(20, 20, 200, 200);
-
-    painter.fillStyle = gradient;
-    painter.fill();
     painter.closePath();
 
     /** 画字 */
@@ -100,10 +104,10 @@ export default class Marker {
     // 无法清除
     this._painter.beginPath();
     this._painter.strokeRect(
-      this.x - CIRCLE_RADIUS,
-      this.y - CIRCLE_RADIUS,
-      CIRCLE_RADIUS * 2,
-      CIRCLE_RADIUS * 2,
+      this.x - CIRCLE_RADIUS - 1,
+      this.y - CIRCLE_RADIUS - 1,
+      CIRCLE_RADIUS * 2 + 2,
+      CIRCLE_RADIUS * 2 + 2,
     );
     this._painter.lineWidth = 1;
     this._painter.strokeStyle = '#5C67FF';
