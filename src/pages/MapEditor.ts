@@ -359,6 +359,7 @@ export default class MapEditor implements BasicMapEditor {
   /** 鼠标抬起 */
   private _onMouseUp = (event: MouseEvent) => {
     _clickRight = false;
+    this._canvas.style.cursor = 'auto';
     this._previousMoveX = this._moveX;
     console.log('====鼠标抬起====');
     switch (this.status) {
@@ -413,6 +414,7 @@ export default class MapEditor implements BasicMapEditor {
     const { x, y } = event;
     /** 按下右键执行 */
     if (_clickRight) {
+      this._canvas.style.cursor = 'move';
       this.switchTo(EditorStatusEnum.Normal);
       this._clear();
       const moveX = this.getMoveX(x);
