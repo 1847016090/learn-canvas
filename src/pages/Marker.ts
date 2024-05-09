@@ -80,6 +80,7 @@ export default class Marker {
       CIRCLE_RADIUS * 2,
       CIRCLE_RADIUS * 2,
     );
+    this._painter.lineWidth = 1;
     this._painter.strokeStyle = '#5C67FF';
     this._painter.stroke();
     this._painter.closePath();

@@ -93,6 +93,7 @@ export default class MapEditor implements BasicMapEditor {
   ratio: number;
   /** 点位信息 */
   points: Point[] = [];
+  private _defaultPoint: Point[] = [];
 
   /**
    * 暂时不用
@@ -112,6 +113,9 @@ export default class MapEditor implements BasicMapEditor {
   // private _clickRight: boolean = false;
   private _mouseDownX: number = 0;
   private _mouseDownY: number = 0;
+
+  private _moveX: number = 0;
+  private _previousMoveX: number = 0;
   constructor(options: {
     /** canvas ID */
     canvasId: string;
@@ -199,7 +203,7 @@ export default class MapEditor implements BasicMapEditor {
       return {
         ...rest,
         position: {
-          x: x / ratio,
+          x: (x - this._moveX) / ratio,
           y: y / ratio,
         },
       };
@@ -234,11 +238,11 @@ export default class MapEditor implements BasicMapEditor {
   }
 
   /** 绘制地图 */
-  private _drawMap(x: number = 0) {
+  private _drawMap() {
     const mapWidth = this.ratio * this._mapInfo.width;
     const mapHeight = this.ratio * this._mapInfo.height;
     /** 绘制背景 */
-    this._painter.drawImage(this._mapInfo, x, 0, mapWidth, mapHeight);
+    this._painter.drawImage(this._mapInfo, this._moveX, 0, mapWidth, mapHeight);
   }
 
   /** 清除画布重新绘制 */
@@ -301,17 +305,22 @@ export default class MapEditor implements BasicMapEditor {
   private _onContextMenu(event: MouseEvent) {
     /** 阻止默认的右键事件 */
     event.preventDefault();
-    console.log('鼠标右键');
+    console.log('===鼠标右键触发====');
     _clickRight = true;
-    console.log('this._mode ', this._mode);
   }
 
   /** 鼠标点下 */
   private _onMouseDown = (event: MouseEvent) => {
     console.log('====鼠标按下====');
-    console.log('event', event);
     this._mouseDownX = event.clientX;
     this._mouseDownY = event.clientY;
+    this._defaultPoint = this.points.map((p) => ({
+      ...p,
+      position: {
+        ...p.position,
+        x: p.position.x - this._moveX,
+      },
+    }));
     if (this._selectedPoint) {
       this._mode = EditorModeEnum.DragPoint;
     }
@@ -329,6 +338,7 @@ export default class MapEditor implements BasicMapEditor {
   /** 鼠标抬起 */
   private _onMouseUp = (event: MouseEvent) => {
     _clickRight = false;
+    this._previousMoveX = this._moveX;
     console.log('====鼠标抬起====');
     switch (this.status) {
       case EditorStatusEnum.New:
@@ -355,9 +365,6 @@ export default class MapEditor implements BasicMapEditor {
   getMoveX = (x) => {
     /** 1. 获取地图在Canvas里面的宽度 */
     const mapWidth = this.ratio * this._mapInfo.width;
-    console.log('mapWidth', mapWidth);
-    console.log('window.innerWidth', window.innerWidth);
-    console.log('x', x);
     /** 2. 如果地图小于屏幕宽度 */
     if (mapWidth < window.innerWidth) {
       return 0;
@@ -365,34 +372,46 @@ export default class MapEditor implements BasicMapEditor {
 
     /** --边界值-- */
     const border = mapWidth - window.innerWidth;
-    if (x - this._mouseDownX >= -border && x - this._mouseDownX <= 0) {
+    console.log('===border===', border);
+    console.log('x - this._mouseDownX', x - this._mouseDownX);
+    const distance = x - this._mouseDownX + this._previousMoveX;
+    if (distance >= -border && distance <= 0) {
       /** 3. 返回横移距离 */
-      return x - this._mouseDownX;
+      return distance;
+    } else if (distance < -border) {
+      return this._moveX;
+    } else if (distance > 0) {
+      return 0;
     }
-
     return 0;
   };
 
   /**鼠标移动 */
   private _onMouseMove = (event) => {
-    console.log('this._clickRight', _clickRight);
+    // console.log('this._clickRight', _clickRight);
     const { x, y } = event;
     /** 按下右键执行 */
     if (_clickRight) {
       this._clear();
       const moveX = this.getMoveX(x);
       console.log('moveX', moveX);
-      this._drawMap(moveX);
-      console.log('更新前=this.points', this.points);
-      this.points = this.points.map((p) => ({
-        ...p,
-        position: {
-          ...p.position,
-          x: p.position.x + moveX,
-        },
-      }));
-      console.log('更新后=this.points', this.points);
+      this._moveX = moveX;
+      this._drawMap();
+      // console.log('更新前=this.points', this.points);
+      this.points = this._defaultPoint.map((p) => {
+        const nx = p.position.x + moveX;
+        p.marker?.update(nx, p.position.y);
+        return {
+          ...p,
+          position: {
+            ...p.position,
+            x: p.position.x + moveX,
+          },
+        };
+      });
+      // console.log('更新后=this.points', this.points);
       this._drawPoints();
+      // this._previousMoveX = x;
     }
     switch (this._mode) {
       case EditorModeEnum.DragPoint:
