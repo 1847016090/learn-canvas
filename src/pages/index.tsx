@@ -113,6 +113,9 @@ const Main = () => {
 
   const onAdd = () => {
     editorRef.value.switchTo(EditorStatusEnum.New);
+    // setTimeout(() => {
+    //   editorRef.value.switchTo(EditorStatusEnum.Normal);
+    // }, 2000);
   };
 
   const onSave = () => {

@@ -32,7 +32,32 @@ export default class Marker {
       0,
       ([Math.PI / 180] as any) * 360,
     );
-    painter.fillStyle = '#C800FF';
+
+    // conic-gradient(from 180deg at 50% 50%,
+    //   rgba(255, 0, 98, 0.31) -49deg,
+    //   rgba(255, 72, 0, 0.76) 22deg,
+    //   rgba(255, 229, 0, 0.81) 136deg,
+    //   #FF8200 225deg,
+    //    rgba(255, 0, 98, 0.31) 311deg,
+    //    rgba(255, 72, 0, 0.76) 382deg);
+
+    const gradient = this._painter.createConicGradient(
+      180,
+      this.x + CIRCLE_RADIUS,
+      this.y + CIRCLE_RADIUS,
+    );
+    gradient.addColorStop(0, 'rgba(255, 0, 98, 0.31)');
+    gradient.addColorStop(22 / 360, 'rgba(255, 72, 0, 0.76)');
+    gradient.addColorStop(136 / 360, 'rgba(255, 229, 0, 0.81)');
+    gradient.addColorStop(225 / 360, '#FF8200');
+    gradient.addColorStop(311 / 360, 'rgba(255, 0, 98, 0.31)');
+    gradient.addColorStop(360 / 360, 'rgba(255, 72, 0, 0.76)');
+
+    // Set the fill style and draw a rectangle
+    // ctx.fillStyle = gradient;
+    // ctx.fillRect(20, 20, 200, 200);
+
+    painter.fillStyle = gradient;
     painter.fill();
     painter.closePath();
 

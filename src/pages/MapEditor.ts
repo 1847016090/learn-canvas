@@ -388,16 +388,14 @@ export default class MapEditor implements BasicMapEditor {
 
   /**鼠标移动 */
   private _onMouseMove = (event) => {
-    // console.log('this._clickRight', _clickRight);
     const { x, y } = event;
     /** 按下右键执行 */
     if (_clickRight) {
+      this.switchTo(EditorStatusEnum.Normal);
       this._clear();
       const moveX = this.getMoveX(x);
-      console.log('moveX', moveX);
       this._moveX = moveX;
       this._drawMap();
-      // console.log('更新前=this.points', this.points);
       this.points = this._defaultPoint.map((p) => {
         const nx = p.position.x + moveX;
         p.marker?.update(nx, p.position.y);
@@ -409,9 +407,7 @@ export default class MapEditor implements BasicMapEditor {
           },
         };
       });
-      // console.log('更新后=this.points', this.points);
       this._drawPoints();
-      // this._previousMoveX = x;
     }
     switch (this._mode) {
       case EditorModeEnum.DragPoint:
@@ -434,9 +430,12 @@ export default class MapEditor implements BasicMapEditor {
         /** 1. 移除新增的点 */
         this.points = this.points.filter((p) => p.contentListPoiId);
         /** 2. 重新生成一个新点 */
-        this.points.push({
-          position: { x, y },
-        });
+        if (this.status === EditorStatusEnum.New) {
+          this.points.push({
+            position: { x, y },
+          });
+        }
+
         /** 3. 重新绘制 */
         this._rerender();
         break;
