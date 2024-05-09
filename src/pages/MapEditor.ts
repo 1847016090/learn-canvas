@@ -264,14 +264,15 @@ export default class MapEditor implements BasicMapEditor {
           p.marker.checkSelected(clientX, clientY),
         );
         const selectFn = this._listenFnCache.get(FnCacheStatusEnum.Select);
-        const { marker, ...p } = point;
-        selectFn?.(p);
+
         /** 点击同一个点不绘制 */
         if (
           point &&
           point.contentListPoiId === this._selectedPoint?.contentListPoiId
         ) {
           this._selectedPoint = point;
+          const { marker, ...p } = this._selectedPoint;
+          selectFn?.(p);
           return;
         }
         /** 点击不同点清除画布重新绘制 */
@@ -280,6 +281,8 @@ export default class MapEditor implements BasicMapEditor {
           point.contentListPoiId !== this._selectedPoint?.contentListPoiId
         ) {
           this._selectedPoint = point;
+          const { marker, ...p } = this._selectedPoint;
+          selectFn?.(p);
           this._clear();
           this._rerender();
 
@@ -289,6 +292,7 @@ export default class MapEditor implements BasicMapEditor {
         /** 重置 */
         console.log('重置');
         this._selectedPoint = undefined;
+        selectFn(undefined);
         this._clear();
         this._rerender();
         break;
