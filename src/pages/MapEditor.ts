@@ -560,7 +560,7 @@ export default class MapEditor implements BasicMapEditor {
         this._showPop &&
         this._hoverPoint?.contentListPoiId === point.contentListPoiId
       ) {
-        marker.popUp(this._canvasLeft);
+        marker.popUp();
       } else {
         marker.popDown();
       }
