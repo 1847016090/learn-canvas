@@ -35,15 +35,15 @@ import selectP from './selected-point.png';
 const Main = () => {
   const [state, setState] = useState({
     points: [
-      // {
-      //   contentListPoiId: '1',
-      //   contentListPoiName: '哈哈哈哈',
-      //   usingGuideBookIdx: 0,
-      //   position: {
-      //     x: 1240,
-      //     y: 580,
-      //   },
-      // },
+      {
+        contentListPoiId: '1',
+        contentListPoiName: '哈哈哈哈',
+        usingGuideBookIdx: 0,
+        position: {
+          x: 1240,
+          y: 580,
+        },
+      },
       // {
       //   contentListPoiId: '2',
       //   contentListPoiName: '嘻嘻嘻嘻',

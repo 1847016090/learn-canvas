@@ -120,6 +120,7 @@ export default class Marker {
     pop.style.color = '#FFFFFF';
     pop.innerText = this.name;
     pop.style.position = 'fixed';
+    pop.style.whiteSpace = 'nowrap';
     pop.style.zIndex = '99';
     const textWidth = this.measureText() + 24;
     console.log('textWidth', textWidth);
