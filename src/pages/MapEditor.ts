@@ -78,6 +78,7 @@ export default class MapEditor implements BasicMapEditor {
   /** 背景地图信息 */
   private _mapInfo: HTMLImageElement;
   private _selectedPoint: Point;
+  private _hoverPoint: Point;
   private _painter: CanvasRenderingContext2D;
   private _canvas: HTMLCanvasElement;
   private _listenFnCache: Map<FnCacheStatusEnum, Function> = new Map();
@@ -88,6 +89,9 @@ export default class MapEditor implements BasicMapEditor {
 
   private _moveX: number = 0;
   private _previousMoveX: number = 0;
+
+  /** 展示弹窗 */
+  _showPop: Boolean = true;
   constructor(options: {
     /** canvas ID */
     canvasId: string;
@@ -116,6 +120,7 @@ export default class MapEditor implements BasicMapEditor {
     this.status = status;
     this._reset();
     if (status === EditorStatusEnum.New) {
+      this._showPop = false;
       /** 新增模式，圆点跟随鼠标 */
       this._mode = EditorModeEnum.CursorPoint;
     }
@@ -343,6 +348,7 @@ export default class MapEditor implements BasicMapEditor {
   private _onMouseDown = (event: MouseEvent) => {
     console.log('====鼠标按下====');
     console.log('event.clientX', event.clientX);
+    this._showPop = false;
     const newEvent = this._getMousePosition(event);
     const { clientX, clientY } = newEvent;
     console.log(
@@ -390,6 +396,7 @@ export default class MapEditor implements BasicMapEditor {
         break;
       case EditorStatusEnum.Normal:
         this._mode = EditorModeEnum.None;
+        this._showPop = true;
         this._rerender();
         const updateFn = this._listenFnCache.get(FnCacheStatusEnum.Update);
         updateFn?.(
@@ -431,8 +438,15 @@ export default class MapEditor implements BasicMapEditor {
 
   /**鼠标移动 */
   private _onMouseMove = (event) => {
-    // const { x, y } = event;
     const { x, y } = this._getMousePosition(event);
+
+    /** 判断 */
+    const point = this.points.find((p) => p.marker.checkSelected(x, y));
+    this._hoverPoint = point;
+    if (this._showPop) {
+      this._clear();
+      this._rerender();
+    }
     /** 按下右键执行 */
     if (_clickRight) {
       this._canvas.style.cursor = 'move';
@@ -502,18 +516,6 @@ export default class MapEditor implements BasicMapEditor {
     this._canvas.addEventListener('mouseup', this._onMouseUp);
     this._canvas.addEventListener('contextmenu', this._onContextMenu);
     this._canvas.addEventListener('mousemove', this._onMouseMove);
-    // this._canvas.addEventListener('mouseover', (event) => {
-    //   console.log('浮动啦 mouseover');
-    // });
-    // this._canvas.addEventListener('mouseenter', (event) => {
-    //   console.log('浮动啦 mouseenter');
-    // });
-    // this._canvas.addEventListener('mouseout', (event) => {
-    //   console.log('浮动啦 mouseout');
-    // });
-    // this._canvas.addEventListener('mouseleave', (event) => {
-    //   console.log('浮动啦 mouseleave');
-    // });
     window.addEventListener('resize', this._onWindowResize);
   }
   /** 移出事件监听 */
@@ -551,6 +553,14 @@ export default class MapEditor implements BasicMapEditor {
       marker.init(this._painter, {
         existed: isExistedPoint,
       });
+      if (
+        this._showPop &&
+        this._hoverPoint?.contentListPoiId === point.contentListPoiId
+      ) {
+        marker.popUp();
+      } else {
+        marker.popDown();
+      }
       if (shouldSelect) {
         marker.select();
       }

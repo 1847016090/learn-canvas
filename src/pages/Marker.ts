@@ -1,6 +1,6 @@
 export const CIRCLE_RADIUS = 8;
-import { loadImage } from './MapEditor';
-import unselectPoint from './unselect-point.png';
+export const TEXT_SIZE = 14;
+export const TEXT_FAMILY = 'Verdana';
 export default class Marker {
   /** 点位x轴位置 */
   x: number = 0;
@@ -10,7 +10,6 @@ export default class Marker {
   name: string;
   /** 点位ID */
   id: string;
-  _id: string;
   /** 画笔 */
   _painter: CanvasRenderingContext2D;
 
@@ -81,8 +80,6 @@ export default class Marker {
    * @param my 鼠标点中的y值
    */
   checkSelected(mx: number, my: number) {
-    console.log('this.x', this.x);
-    console.log('this.y', this.y);
     if (
       mx > this.x - CIRCLE_RADIUS &&
       mx < this.x + CIRCLE_RADIUS &&
@@ -90,13 +87,51 @@ export default class Marker {
       my < this.y + CIRCLE_RADIUS
     ) {
       console.log('===选中啦===');
+      this.popUp();
       // this.select();
-      return {
-        id: this.id,
-      };
+      return true;
     }
     // this.unselect();
-    return null;
+    this.popDown();
+    return false;
+  }
+
+  measureText() {
+    this._painter.beginPath();
+    this._painter.font = `${TEXT_SIZE}px Verdana`; // 改变字的大小，文本的长度也会发生变化
+    const width = this._painter.measureText(this.name).width;
+    return width;
+  }
+
+  /** 弹出弹窗 */
+  popUp() {
+    const exist = document.querySelector(`#point${this.id}`);
+    if (exist) return;
+    const pop = document.createElement('div');
+    pop.style.padding = '7px 12px';
+    pop.style.background = '#0F1233';
+    pop.style.boxShadow = '0px 2px 12px 0px rgba(0, 0, 0, 0.08)';
+    pop.style.fontSize = `${TEXT_SIZE}px`;
+    pop.style.fontFamily = TEXT_FAMILY;
+    pop.style.borderRadius = '6px';
+    pop.style.lineHeight = '22px';
+    pop.style.color = '#FFFFFF';
+    pop.innerText = this.name;
+    pop.style.position = 'fixed';
+    const textWidth = this.measureText() + 24;
+    console.log('textWidth', textWidth);
+    pop.style.left = `${this.x - textWidth / 2}px`;
+    pop.style.top = `${this.y - 56}px`;
+    pop.id = `point${this.id}`;
+    document.body.appendChild(pop);
+  }
+
+  /** 隐藏弹窗 */
+  popDown() {
+    const pop = document.querySelector(`#point${this.id}`);
+    if (pop) {
+      document.body.removeChild(pop);
+    }
   }
 
   /** 选中，外部添加选中框 */
