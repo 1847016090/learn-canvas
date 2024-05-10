@@ -438,8 +438,9 @@ export default class MapEditor implements BasicMapEditor {
 
   /**鼠标移动 */
   private _onMouseMove = (event) => {
-    const { x, y } = this._getMousePosition(event);
-
+    const { x, y, clientX, clientY } = this._getMousePosition(event);
+    console.log('x, y', x, y);
+    console.log('clientX,clientY', clientX, clientY);
     /** 判断 */
     const point = this.points.find((p) => p.marker.checkSelected(x, y));
     this._hoverPoint = point;
@@ -539,6 +540,7 @@ export default class MapEditor implements BasicMapEditor {
         options: {
           unselectImage: this._unselectPointImage,
           selectedImage: this._selectedPointImage,
+          canvasLeft: this._canvasLeft,
         },
       });
 
@@ -549,15 +551,16 @@ export default class MapEditor implements BasicMapEditor {
         this._mode !== EditorModeEnum.CursorPoint;
 
       const isExistedPoint = !!point.contentListPoiId;
-
+      marker.update(point.position.x, point.position.y);
       marker.init(this._painter, {
         existed: isExistedPoint,
       });
+      console.log('this._canvasLeft', this._canvasLeft);
       if (
         this._showPop &&
         this._hoverPoint?.contentListPoiId === point.contentListPoiId
       ) {
-        marker.popUp();
+        marker.popUp(this._canvasLeft);
       } else {
         marker.popDown();
       }

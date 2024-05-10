@@ -12,7 +12,7 @@ export default class Marker {
   id: string;
   /** 画笔 */
   _painter: CanvasRenderingContext2D;
-
+  _canvasLeft: number = 0;
   private _unselectImage: HTMLImageElement;
   private _selectedImage: HTMLImageElement;
 
@@ -22,8 +22,9 @@ export default class Marker {
     name: string;
     id: string;
     options: {
-      unselectImage;
-      selectedImage;
+      unselectImage: HTMLImageElement;
+      selectedImage: HTMLImageElement;
+      canvasLeft?: number;
     };
   }) {
     this.x = data.x;
@@ -32,6 +33,7 @@ export default class Marker {
     this.id = data.id;
     this._unselectImage = data.options.unselectImage;
     this._selectedImage = data.options.selectedImage;
+    this._canvasLeft = data.options.canvasLeft;
   }
 
   /** 初始化点位 */
@@ -118,9 +120,12 @@ export default class Marker {
     pop.style.color = '#FFFFFF';
     pop.innerText = this.name;
     pop.style.position = 'fixed';
+    pop.style.zIndex = '99';
     const textWidth = this.measureText() + 24;
     console.log('textWidth', textWidth);
-    pop.style.left = `${this.x - textWidth / 2}px`;
+    console.log('this.x - textWidth / 2 + x', this.x - textWidth / 2);
+    console.log('canvasLeft', this._canvasLeft);
+    pop.style.left = `${this.x - textWidth / 2 + this._canvasLeft}px`;
     pop.style.top = `${this.y - 56}px`;
     pop.id = `point${this.id}`;
     document.body.appendChild(pop);
