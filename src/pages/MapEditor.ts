@@ -70,7 +70,7 @@ export default class MapEditor implements BasicMapEditor {
   /**
    * 暂时不用
    */
-  canvasLeft: number = 0;
+  _canvasLeft: number = 0;
   canvasTop: number = 0;
 
   /** 当前模式 */
@@ -97,7 +97,7 @@ export default class MapEditor implements BasicMapEditor {
     points?: Point[];
     /** 点信息配置 */
     pointOptions: {
-      /** 为选中点图片 */
+      /** 未选中点图片 */
       unselectUrl: string;
       /** 已选中点图片 */
       selectedUrl: string;
@@ -151,12 +151,12 @@ export default class MapEditor implements BasicMapEditor {
     await this._initMap();
     /** 获取比例 */
     this._getRatio();
-    /** 根据比列更细点位 */
-    this._updatePointsByRatio();
     /** 初始化画笔 */
     this._initPainter();
     /** 绘制背景地图 */
     this._drawMap();
+    /** 根据比列更细点位 */
+    this._updatePointsByRatio();
     /** 绘制点位信息 */
     this._drawPoints();
     /** 先移除监听 */
@@ -170,12 +170,12 @@ export default class MapEditor implements BasicMapEditor {
     this.points = this.getOriginPoints();
     /** 获取比例 */
     this._getRatio();
-    /** 根据比列更细点位 */
-    this._updatePointsByRatio();
     /** 初始化画笔 */
     this._initPainter();
     /** 绘制背景地图 */
     this._drawMap();
+    /** 根据比列更细点位 */
+    this._updatePointsByRatio();
     /** 绘制点位信息 */
     this._drawPoints();
   }
@@ -247,6 +247,9 @@ export default class MapEditor implements BasicMapEditor {
     this._canvas = canvas;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
+
+    const { x } = canvas.getBoundingClientRect();
+    this._canvasLeft = x;
     // canvas.style.cursor = "move"
     /** 创建画笔 */
     this._painter = canvas.getContext('2d');
@@ -271,11 +274,22 @@ export default class MapEditor implements BasicMapEditor {
     this._drawPoints();
   }
 
+  /** 对齐坐标 */
+  _getMousePosition({ clientX, x, clientY, y }: MouseEvent) {
+    const clientXBase = clientX - this._canvasLeft;
+    const xBase = x - this._canvasLeft;
+    return {
+      clientY,
+      y,
+      clientX: clientXBase,
+      x: xBase,
+    };
+  }
   /** 鼠标点击 */
   private _onMouseClick = (event) => {
     console.log('====鼠标点击====');
-    const { clientX, clientY } = event;
-
+    // const { clientX, clientY } = event;
+    const { clientX, clientY } = this._getMousePosition(event);
     switch (this.status) {
       case EditorStatusEnum.New:
         break;
@@ -328,8 +342,17 @@ export default class MapEditor implements BasicMapEditor {
   /** 鼠标点下 */
   private _onMouseDown = (event: MouseEvent) => {
     console.log('====鼠标按下====');
-    this._mouseDownX = event.clientX;
-    this._mouseDownY = event.clientY;
+    console.log('event.clientX', event.clientX);
+    const newEvent = this._getMousePosition(event);
+    const { clientX, clientY } = newEvent;
+    console.log(
+      '鼠标按下 clientX, clientY',
+      clientX,
+      clientY,
+      this._canvasLeft,
+    );
+    this._mouseDownX = clientX;
+    this._mouseDownY = clientY;
     this._defaultPoint = this.points.map((p) => ({
       ...p,
       position: {
@@ -361,7 +384,7 @@ export default class MapEditor implements BasicMapEditor {
     console.log('====鼠标抬起====');
     switch (this.status) {
       case EditorStatusEnum.New:
-        const { clientX, clientY } = event;
+        const { clientX, clientY } = this._getMousePosition(event);
         const addFn = this._listenFnCache.get(FnCacheStatusEnum.Add);
         addFn?.({ x: clientX, y: clientY }, this._getFilterPoints());
         break;
@@ -408,7 +431,8 @@ export default class MapEditor implements BasicMapEditor {
 
   /**鼠标移动 */
   private _onMouseMove = (event) => {
-    const { x, y } = event;
+    // const { x, y } = event;
+    const { x, y } = this._getMousePosition(event);
     /** 按下右键执行 */
     if (_clickRight) {
       this._canvas.style.cursor = 'move';
@@ -501,16 +525,6 @@ export default class MapEditor implements BasicMapEditor {
     this._canvas.removeEventListener('contextmenu', this._onContextMenu);
     window.removeEventListener('resize', this._onWindowResize);
   }
-
-  /** 对齐坐标 */
-  // getMousePosition({ clientX, clientY }) {
-  //   const xBase = clientX - this.canvasLeft;
-  //   const yBase = clientY - this.canvasTop;
-  //   return {
-  //     x: xBase,
-  //     y: yBase,
-  //   };
-  // }
 
   /** 渲染点位 */
   private _drawPoints() {
