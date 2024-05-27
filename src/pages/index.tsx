@@ -3,13 +3,15 @@ import _ from 'lodash';
 const canvasId = 'myCanvas';
 const map =
   'https://static.rokidcdn.com/test/rokid-dcg-manage/1.0.0/assets/login-bg-48e90a23.png';
-
+// const map =
+//   'https://oss-cn-hangzhou.aliyuncs.com/glass-algorithm-biz/38dc7dc82ec5416a9f5eb111a37d4f53.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240521T033325Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=LTAI5t9wRMMQVdnZKMQHeToG%2F20240521%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=0f7590eb626736665abf0d2e41aff301e72d93f19799701e02ac2d489f1cbf6b';
 import MapEditor, {
   EditorStatusEnum,
   FnCacheStatusEnum,
   Point,
 } from './MapEditor';
 import BasicMapEditor from './BasicMapEditor';
+import mapImage from './map.png';
 
 import unselectP from './unselect-point.png';
 import selectP from './selected-point.png';
@@ -40,16 +42,19 @@ const Main = () => {
         contentListPoiName: '哈哈哈哈',
         usingGuideBookIdx: 0,
         position: {
-          x: 1240,
-          y: 580,
+          x: 1012.7710843373493,
+          y: 486.86746987951807,
         },
       },
-      // {
-      //   contentListPoiId: '2',
-      //   contentListPoiName: '嘻嘻嘻嘻',
-      //   usingGuideBookIdx: 0,
-      //   position: { x: 200, y: 200 },
-      // },
+      {
+        contentListPoiId: '1716194781704',
+        contentListPoiName: '点位1716194781704',
+        usingGuideBookIdx: 0,
+        position: {
+          x: 1006.2650602409637,
+          y: 589.8795180722891,
+        },
+      },
     ],
   });
   const editorRef = useRef<BasicMapEditor>();
@@ -103,7 +108,7 @@ const Main = () => {
   useEffect(() => {
     let editor = new MapEditor({
       canvasId,
-      map,
+      map: mapImage,
       points: state.points,
       pointOptions: {
         unselectUrl: unselectP,
